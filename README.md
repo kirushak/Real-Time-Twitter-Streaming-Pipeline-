@@ -1,146 +1,136 @@
-# Tweet Analysis using Kafka and Spark Streaming
+# 🐦 Real-Time Tweet Analysis Dashboard  
+**Using Kafka, Spark Streaming, and Node.js**
 
-Built a real-time analytics dashboard to visualize the trending hashtags and @mentions at a given location by using real time streaming twitter API to get data.
+A real-time analytics system that fetches live tweets, analyzes hashtags and mentions, and dynamically visualizes them on a web dashboard.
 
-## Installation Guide
+---
 
-#### Download and Install Kafka, Spark, Python and npm. 
-<ol>
-<li> You can refer to following guide to install kafka. </li>  
+## 🚀 Features
 
-> https://towardsdatascience.com/running-zookeeper-kafka-on-windows-10-14fc70dcc771
+- Live tweet ingestion using Twitter Streaming API  
+- Real-time hashtag and @mention extraction  
+- Kafka-based message queuing for scalability  
+- Spark Streaming for micro-batch processing  
+- Interactive dashboard with live chart updates
 
-<li> Spark can be downloaded from following link </li>
+---
 
-> https://spark.apache.org/downloads.html
+## 🛠️ Tech Stack
 
-</ol>
+| Layer            | Technologies                                                                 |
+|------------------|------------------------------------------------------------------------------|
+| Frontend         | HTML5, CSS3, Bootstrap, Highcharts.js, Socket.IO                            |
+| Backend          | Node.js, Express.js                                                         |
+| Stream Processor | Apache Spark (PySpark)                                                      |
+| Messaging Queue  | Apache Kafka                                                                |
+| Language         | Python, JavaScript                                                          |
 
-<br>
+---
 
-##  How to run the code.
-
-<ul>
-<li> Create kafka topic. </li>
-<ul>
-<li> You can refer to below link </li>
-
-> https://dzone.com/articles/running-apache-kafka-on-windows-os
-
-<li> Or run following command </li>
-
-> kafka-topics.bat --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic twitter
-
-</ul>
-
-<li> Update conf file with your secret key and access tokens. </li>
-
-<li> Install Python dependencies. </li>
+## 🧩 Architecture
 
 ```
- pip install -r requirements.txt
+Twitter API → Kafka Topic (raw tweets)
+                  ↓
+          Spark Streaming
+       (process and filter data)
+                  ↓
+      Kafka Topic (processed data)
+                  ↓
+        Node.js Server + Socket.IO
+                  ↓
+     Real-Time Dashboard (Highcharts)
 ```
 
-<li> Install Node js dependencies. </li>
+![Architecture](architecture.png)
 
+---
+
+## 📦 Installation & Setup
+
+### 1. Prerequisites
+Ensure the following are installed:
+
+- Python 3.x  
+- Apache Kafka  
+- Apache Spark  
+- Node.js & npm  
+
+### 2. Installation Steps
+
+#### 🧱 Kafka & Spark
+Follow these installation guides:
+
+- [Install Kafka & Zookeeper](https://towardsdatascience.com/running-zookeeper-kafka-on-windows-10-14fc70dcc771)  
+- [Download Spark](https://spark.apache.org/downloads.html)  
+
+#### 🔧 Set Up Kafka Topic
+```bash
+kafka-topics.bat --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic twitter
 ```
+
+#### 🔐 Configure Secrets
+Update your `conf` file with Twitter API credentials (API key, API secret, tokens).
+
+#### 📦 Install Python Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+#### 📦 Install Node.js Dependencies
+```bash
 npm install
 ```
 
-<li> Start Zookeeper </li>
+---
 
-> Open cmd and execute
+## ⚙️ Running the Application
 
-```
+### 1. Start Zookeeper
+```bash
 zkserver
 ```
 
-<li> Start Kafka </li>
-
-> Go to Kafka installation directory. ..\kafka_2.11-2.3.1\bin\windows. Open cmd here and execute following command.
-
-```
-kafka-server-start.bat C:\ProgramData\Java\kafka_2.11-2.3.1\config\server.properties
+### 2. Start Kafka Server
+```bash
+kafka-server-start.bat path/to/server.properties
 ```
 
-<li> Run python file to fetch tweets. </li>
-
-```
+### 3. Fetch Tweets into Kafka
+```bash
 python fetch_tweets.py
 ```
 
-<li> Run python file to analyze tweets. </li>
-
-```
+### 4. Analyze Tweets via Spark
+```bash
 python analyze_tweets.py
 ```
 
-<li> Start npm server </li>
-
-```
+### 5. Launch Node Server
+```bash
 npm start
 ```
 
-</ul>
-<br>
+---
 
-## Technology stack
+## 📊 Dashboard Preview
 
-![stack](stack.png)
+| Trending Hashtags                     | Most Mentioned Users                 |
+|--------------------------------------|--------------------------------------|
+| ![hashtags](hashtags.png)            | ![mentions](mentions.png)            |
 
-</br> 
+---
 
-<table>
-<thead>
-<tr>
-<th>Area</th>
-<th>Technology</th>
-</tr>
-</thead>
-<tbody>
-	<tr>
-		<td>Front-End</td>
-		<td> HTML5, Bootstrap, CSS3, Socket.IO, highcharts.js </td>
-	</tr>
-	<tr>
-		<td>Back-End</td>
-		<td>Express, Node.js</td>
-	</tr>
-    <tr>
-		<td>Cluster Computing Framework</td>
-		<td>Apache Spark (python)</td>
-	</tr>
-	<tr>
-		<td>Message Broker</td>
-		<td>Apache kafka</td>
-	</tr>
-</tbody>
-</table>
+## 📈 How It Works
 
-</br>
+1. Tweets are streamed from Twitter and sent to Kafka.
+2. Spark Streaming reads tweets in micro-batches, extracts top hashtags and mentions.
+3. Processed results are sent back to another Kafka topic.
+4. Node.js server consumes this and emits updates to clients via WebSockets.
+5. Highcharts renders live updates on the dashboard every 60 seconds.
 
-## Architecture
+---
 
-</br>
+## 🤝 Contributing
 
-![architecture](architecture.png)
-
-</br>
-
-## How it works
-<ol>
-    <li>Extract data from Twitter's streaming API and put it into Kakfa topic.</li>
-    <li>Spark is listening to this topic, it will read the data from topic, analyze it is using spark streaming and put top 10 trending hashtags and @mentions into another kafka topic.</li>
-    <li>Spark Streaming creates DStream whenever it read the data from kafka and analyze it by performing operation like map, filter, updateStateByKey, countByValues and forEachRDD on the RDD and top 10 hashtags and mentions are obtained from RDD using SparkSQL.</li>
-    <li>Node.js will pick up the this data from kafka topic on server side and emit it to the socket.</li>
-    <li>Socket will push data to user's dashboard which is rendered using highcharts.js in realtime.</li>
-    <li>The dashboard is refreshed every 60 secs.</li>
-</ol>
-
-</br>
-
-</br>
-
-![hashtags](hashtags.png)
-
-![mentions](mentions.png)
+Feel free to fork, enhance, or suggest improvements via pull requests!
